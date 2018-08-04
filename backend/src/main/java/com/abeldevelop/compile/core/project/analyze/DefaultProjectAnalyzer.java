@@ -2,6 +2,7 @@ package com.abeldevelop.compile.core.project.analyze;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.abeldevelop.compile.api.resources.Project;
 import com.abeldevelop.compile.api.resources.ProjectData;
 import com.abeldevelop.compile.core.json.ReadJson;
+import com.abeldevelop.compile.exception.CyclicalProjectCompileException;
 import com.abeldevelop.compile.model.ProjectScan;
 import com.abeldevelop.compile.util.Constants;
 
@@ -19,11 +21,20 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 @Slf4j
 @Service
-public class DefaultProjectAnalyzer implements AnalyzerProjectService {
+public class DefaultProjectAnalyzer implements AnalyzerProject {
 
 	private final ReadJson readJson;
 	
-	public List<String> analyze(Map<String, Project> projects, ProjectData projectToAnalyze) {
+	public List<String> analyze(Map<String, Project> projects) {
+		
+		for(Iterator<Map.Entry<String, Project>> it = projects.entrySet().iterator(); it.hasNext(); ) {
+		    Map.Entry<String, Project> entry = it.next();
+		    if("com.abeldevelop.pruebapruebaTres0.0.1-SNAPSHOT".equals(entry.getKey())) {
+		    	log.debug("Es el proyecto 3");
+		    	log.info(entry.getValue().getData().toString());
+		    	scanProject(entry.getValue());
+		    }
+		}
 		//TODO => Para que compile
 		return null;
 //		List<String> errors = new ArrayList<>();
@@ -32,7 +43,32 @@ public class DefaultProjectAnalyzer implements AnalyzerProjectService {
 //		temporal();	//TODO => Borrar esta llama y el metodo
 //		return errors;
 	}
+	
+	private void scanProject(Project project) {
+		List<ProjectScan> projectScan = new ArrayList<>();
+		if(project.getDependencies() != null) {
+			for(Project pro : project.getDependencies()) {
+				projectScan.add(new ProjectScan(pro, project));
+			}
+			
+			for(Project pro : project.getDependencies()) {
+				scanDependency(pro, projectScan);
+			}
+		}
+	}
 
+	private void scanDependency(Project project, List<ProjectScan> projectScan) {
+		log.info(project.getData().toString());
+		List<ProjectScan> projectScanCopy = new ArrayList<>(projectScan);
+		if(project.getDependencies() != null) {
+			for(Project pro : project.getDependencies()) {
+				checkInconsistencies(projectScanCopy, pro.getData(), project.getData());
+				scanDependency(pro, projectScanCopy);
+			}
+		}
+	}
+	
+	
 	private void temporal() {
 		List<ProjectScan> projectsAnalyzed = new ArrayList<>();
 		
@@ -96,47 +132,30 @@ public class DefaultProjectAnalyzer implements AnalyzerProjectService {
 	
 	
 	
-	private List<String> scanProjects(Map<String, Project> projects, ProjectData projectToAnalyze) {
-		List<String> errors = new ArrayList<>();
-		Map<String, String> projectsAnalyzed = null;
-		for(Map.Entry<String, Project> entry : projects.entrySet()) {
-			projectsAnalyzed = new HashMap<>();
-			Project project = entry.getValue();
-			for(Project dependency : project.getDependencies()) {
-//				projectsAnalyzed.put(key, value);
-			}
-		}
-		return errors;
-	}
-	
-	private List<String> scanDependencies() {
-		List<String> errors = new ArrayList<>();
-		
-		
-		return errors;
-	}
-	
-	
 	private void checkInconsistencies(List<ProjectScan> projectsAnalyzed, ProjectData dependency, ProjectData project) {
 		checkUnnecessaryDependence(projectsAnalyzed, dependency, project);
 		checkCyclicalDependence(projectsAnalyzed, dependency, project);
 	}
 	
 	private void checkUnnecessaryDependence(List<ProjectScan> projectsAnalyzed, ProjectData dependency, ProjectData project) {
-		for(ProjectScan projectScan : projectsAnalyzed) {
+		for(int i = projectsAnalyzed.size() - 1; i >= 0; i--) {
+			ProjectScan projectScan = projectsAnalyzed.get(i);
 			if(generateKey(projectScan.getDependency().getData()).equals(generateKey(dependency))) {
 				log.error(generateMessageUnnecessaryDependence(dependency, projectScan.getProject().getData(), project));
 			}
 		}
+//		for(ProjectScan projectScan : projectsAnalyzed) {
+//			if(generateKey(projectScan.getDependency().getData()).equals(generateKey(dependency))) {
+//				log.error(generateMessageUnnecessaryDependence(dependency, projectScan.getProject().getData(), project));
+//			}
+//		}
 	}
 
 	private void checkCyclicalDependence(List<ProjectScan> projectsAnalyzed, ProjectData dependency, ProjectData project) {
 		for(ProjectScan projectScan : projectsAnalyzed) {
-			if(
-					generateKey(projectScan.getDependency().getData()).equals(generateKey(project)) &&
-					generateKey(projectScan.getProject().getData()).equals(generateKey(dependency))
-				) {
+			if(generateKey(projectScan.getDependency().getData()).equals(generateKey(project)) && generateKey(projectScan.getProject().getData()).equals(generateKey(dependency))) {
 				log.error(generateMessageCyclicalDependence(project, dependency));
+				throw new CyclicalProjectCompileException(generateMessageCyclicalDependence(project, dependency), 2);
 			}
 		}
 	}

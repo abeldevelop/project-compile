@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 
 import com.abeldevelop.compile.api.resources.Project;
 import com.abeldevelop.compile.api.resources.ProjectData;
-import com.abeldevelop.compile.core.project.analyze.AnalyzerProjectService;
 import com.abeldevelop.compile.exception.ProjectCompileException;
 import com.abeldevelop.compile.util.Constants;
 import com.abeldevelop.compile.util.Utils;
@@ -28,8 +27,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class ReadMavenProject implements ReadProject {
-
-	private final AnalyzerProjectService analyzerProjectService;
 	
 	@Override
 	public void read(Map<String, Project> projects, String directory, List<ProjectData> internalProjects) {
@@ -133,10 +130,6 @@ public class ReadMavenProject implements ReadProject {
 			project = new Project();
 			project.setData(projectData);
 			project.setDirectory(directory);
-			
-			//TODO => Recoger los errores de analisis
-			analyzerProjectService.analyze(projects, projectData);
-			
 			projects.put(id, project);
 		}
 		else {

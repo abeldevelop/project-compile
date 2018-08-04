@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.abeldevelop.compile.api.resources.JsonData;
 import com.abeldevelop.compile.api.resources.Project;
 import com.abeldevelop.compile.core.json.SaveJson;
+import com.abeldevelop.compile.core.project.analyze.AnalyzerProject;
 import com.abeldevelop.compile.core.project.read.ReadProject;
 import com.abeldevelop.compile.core.project.read.ReadProjectFactory;
 
@@ -27,6 +28,8 @@ public class CreateJsonService implements JsonService {
 	private final ReadProjectFactory readProjectFactory;
 	
 	private final SaveJson saveJson;
+	
+	private final AnalyzerProject analyzerProject;
 	
 	@Override
 	public void createJson(JsonData jsonData) {
@@ -47,7 +50,7 @@ public class CreateJsonService implements JsonService {
 				readProject.read(projects, directory, jsonData.getInternalProjects());
 			}
 		}
-		
+		analyzerProject.analyze(projects);
 		deleteProjectsNotInDisk(projects);
 		saveJson.save(projects);
 	}
