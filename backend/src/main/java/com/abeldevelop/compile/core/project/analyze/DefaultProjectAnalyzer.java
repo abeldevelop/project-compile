@@ -26,25 +26,20 @@ public class DefaultProjectAnalyzer implements AnalyzerProject {
 	private final ReadJson readJson;
 	
 	public List<String> analyze(Map<String, Project> projects) {
-		
+		List<String> errors = new ArrayList<>();
 		for(Iterator<Map.Entry<String, Project>> it = projects.entrySet().iterator(); it.hasNext(); ) {
 		    Map.Entry<String, Project> entry = it.next();
 		    if("com.abeldevelop.pruebapruebaTres0.0.1-SNAPSHOT".equals(entry.getKey())) {
 		    	log.debug("Es el proyecto 3");
 		    	log.info(entry.getValue().getData().toString());
-		    	scanProject(entry.getValue());
+		    	errors.addAll(scanProject(entry.getValue()));
 		    }
 		}
-		//TODO => Para que compile
-		return null;
-//		List<String> errors = new ArrayList<>();
-//		errors.addAll(scanProjects(projects, projectToAnalyze));
-
-//		temporal();	//TODO => Borrar esta llama y el metodo
-//		return errors;
+		return errors;
 	}
 	
-	private void scanProject(Project project) {
+	private List<String> scanProject(Project project) {
+		List<String> errors = new ArrayList<>();
 		List<ProjectScan> projectScan = new ArrayList<>();
 		if(project.getDependencies() != null) {
 			for(Project pro : project.getDependencies()) {
@@ -52,103 +47,41 @@ public class DefaultProjectAnalyzer implements AnalyzerProject {
 			}
 			
 			for(Project pro : project.getDependencies()) {
-				scanDependency(pro, projectScan);
+				errors.addAll(scanDependency(pro, projectScan));
 			}
 		}
+		return errors;
 	}
 
-	private void scanDependency(Project project, List<ProjectScan> projectScan) {
+	private List<String> scanDependency(Project project, List<ProjectScan> projectScan) {
+		List<String> errors = new ArrayList<>();
 		log.info(project.getData().toString());
 		List<ProjectScan> projectScanCopy = new ArrayList<>(projectScan);
 		if(project.getDependencies() != null) {
 			for(Project pro : project.getDependencies()) {
-				checkInconsistencies(projectScanCopy, pro.getData(), project.getData());
-				scanDependency(pro, projectScanCopy);
+				errors.addAll(checkInconsistencies(projectScanCopy, pro.getData(), project.getData()));
+				errors.addAll(scanDependency(pro, projectScanCopy));
 			}
 		}
+		return errors;
 	}
 	
-	
-	private void temporal() {
-		List<ProjectScan> projectsAnalyzed = new ArrayList<>();
-		
-		checkInconsistencies(projectsAnalyzed, pruebaDos().getData(), pruebaTres().getData());
-		projectsAnalyzed.add(new ProjectScan(pruebaDos(), pruebaTres()));
-		
-		checkInconsistencies(projectsAnalyzed, pruebaUno().getData(), pruebaTres().getData());
-		projectsAnalyzed.add(new ProjectScan(pruebaUno(), pruebaTres()));
-		
-		checkInconsistencies(projectsAnalyzed, pruebaCinco().getData(), pruebaTres().getData());
-		projectsAnalyzed.add(new ProjectScan(pruebaCinco(), pruebaTres()));
-		
-		
-		
-		
-		checkInconsistencies(projectsAnalyzed, pruebaUno().getData(), pruebaDos().getData());
-		projectsAnalyzed.add(new ProjectScan(pruebaUno(), pruebaDos()));
-		
-		checkInconsistencies(projectsAnalyzed, pruebaCuatro().getData(), pruebaDos().getData());
-		projectsAnalyzed.add(new ProjectScan(pruebaCuatro(), pruebaDos()));
-		
-		
-		
-		checkInconsistencies(projectsAnalyzed, pruebaDos().getData(), pruebaUno().getData());
-		projectsAnalyzed.add(new ProjectScan(pruebaDos(), pruebaUno()));
-		
-		
-	}
-	
-	private Project pruebaUno() {
-		Project project = new Project();
-		project.setData(new ProjectData("com.abeldevelop.prueba", "pruebaUno", "0.0.1-SNAPSHOT"));
-		return project;
-	}
-	
-	private Project pruebaDos() {
-		Project project = new Project();
-		project.setData(new ProjectData("com.abeldevelop.prueba", "pruebaDos", "0.0.1-SNAPSHOT"));
-		return project;
-	}
-	
-	private Project pruebaTres() {
-		Project project = new Project();
-		project.setData(new ProjectData("com.abeldevelop.prueba", "pruebaTres", "0.0.1-SNAPSHOT"));
-		return project;
-	}
-	
-	private Project pruebaCuatro() {
-		Project project = new Project();
-		project.setData(new ProjectData("com.abeldevelop.prueba", "pruebaCuatro", "0.0.1-SNAPSHOT"));
-		return project;
-	}
-	
-	private Project pruebaCinco() {
-		Project project = new Project();
-		project.setData(new ProjectData("com.abeldevelop.prueba", "pruebaCinco", "0.0.1-SNAPSHOT"));
-		return project;
-	}
-	
-	
-	
-	
-	
-	private void checkInconsistencies(List<ProjectScan> projectsAnalyzed, ProjectData dependency, ProjectData project) {
-		checkUnnecessaryDependence(projectsAnalyzed, dependency, project);
+	private List<String> checkInconsistencies(List<ProjectScan> projectsAnalyzed, ProjectData dependency, ProjectData project) {
+		List<String> errors = new ArrayList<>();
+		errors.addAll(checkUnnecessaryDependence(projectsAnalyzed, dependency, project));
 		checkCyclicalDependence(projectsAnalyzed, dependency, project);
+		return errors;
 	}
 	
-	private void checkUnnecessaryDependence(List<ProjectScan> projectsAnalyzed, ProjectData dependency, ProjectData project) {
-		for(int i = projectsAnalyzed.size() - 1; i >= 0; i--) {
-			ProjectScan projectScan = projectsAnalyzed.get(i);
+	private List<String> checkUnnecessaryDependence(List<ProjectScan> projectsAnalyzed, ProjectData dependency, ProjectData project) {
+		List<String> errors = new ArrayList<>();
+		for(ProjectScan projectScan : projectsAnalyzed) {
 			if(generateKey(projectScan.getDependency().getData()).equals(generateKey(dependency))) {
+				errors.add(generateMessageUnnecessaryDependence(dependency, projectScan.getProject().getData(), project));
 				log.error(generateMessageUnnecessaryDependence(dependency, projectScan.getProject().getData(), project));
 			}
 		}
-//		for(ProjectScan projectScan : projectsAnalyzed) {
-//			if(generateKey(projectScan.getDependency().getData()).equals(generateKey(dependency))) {
-//				log.error(generateMessageUnnecessaryDependence(dependency, projectScan.getProject().getData(), project));
-//			}
-//		}
+		return errors;
 	}
 
 	private void checkCyclicalDependence(List<ProjectScan> projectsAnalyzed, ProjectData dependency, ProjectData project) {

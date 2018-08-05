@@ -3,6 +3,7 @@ package com.abeldevelop.compile.api.resources;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
+import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -10,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+@ApiModel(description="Identified of project")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter

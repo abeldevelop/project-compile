@@ -3,6 +3,7 @@ package com.abeldevelop.compile.api.services.json;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +33,8 @@ public class CreateJsonService implements JsonService {
 	private final AnalyzerProject analyzerProject;
 	
 	@Override
-	public void createJson(JsonData jsonData) {
+	public List<String> createJson(JsonData jsonData) {
+		List<String> errors = new ArrayList<>();
 		Map<String, Project> projects = new HashMap<>();
 		List<String> directories = retrieveAllDirectories(jsonData.getProjectsDirectories());
 		
@@ -50,11 +52,16 @@ public class CreateJsonService implements JsonService {
 				readProject.read(projects, directory, jsonData.getInternalProjects());
 			}
 		}
-		analyzerProject.analyze(projects);
+		errors.addAll(analyzerProject.analyze(projects));
 		deleteProjectsNotInDisk(projects);
 		saveJson.save(projects);
+		return removeDuplicateErrors(errors);
 	}
 
+	private List<String> removeDuplicateErrors(List<String> errors) {
+		return new ArrayList<>(new HashSet<>(errors));
+	}
+	
 	private void deleteProjectsNotInDisk(Map<String, Project> projects) {
 		for(Iterator<Map.Entry<String, Project>> it = projects.entrySet().iterator(); it.hasNext(); ) {
 		    Map.Entry<String, Project> entry = it.next();

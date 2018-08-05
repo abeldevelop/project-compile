@@ -17,9 +17,14 @@ import com.abeldevelop.compile.api.resources.ResultData;
 import com.abeldevelop.compile.api.services.project.CompilerProjectService;
 import com.abeldevelop.compile.api.services.project.ProjectService;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+@Api(tags= {"Project"})
 @AllArgsConstructor
 @Slf4j
 @RestController
@@ -29,6 +34,12 @@ public class ProjectController implements ProjectAPI {
 	
 	private final CompilerProjectService compilerProjectService;
 	
+	@ApiOperation(value = "Returns all the projects contained in the json with the projects analyzed")
+	@ApiResponses({ 
+		@ApiResponse(code = 200, message = "Returns all the projects"), 
+		@ApiResponse(code = 400, message = "Error in Request"),
+		@ApiResponse(code = 500, message = "Internal error")
+	})
 	@GetMapping("/project")
 	@Override
 	public ResponseEntity<List<Project>> findAll() {
@@ -40,6 +51,12 @@ public class ProjectController implements ProjectAPI {
 		return new ResponseEntity<>(projects, HttpStatus.OK);
 	}
 	
+	@ApiOperation(value = "Returns all projects that match the search pattern")
+	@ApiResponses({ 
+		@ApiResponse(code = 200, message = "Returns the projects"), 
+		@ApiResponse(code = 400, message = "Error in Request"),
+		@ApiResponse(code = 500, message = "Internal error")
+	})
 	@GetMapping("/project/search")
 	@Override
 	public ResponseEntity<List<Project>> find(@PathParam("group") String group, @PathParam("name") String name, @PathParam("version") String version) {
@@ -53,6 +70,12 @@ public class ProjectController implements ProjectAPI {
 		return new ResponseEntity<>(projects, HttpStatus.OK);
 	}
 	
+	@ApiOperation(value = "Compile the indicated projects")
+	@ApiResponses({ 
+		@ApiResponse(code = 200, message = "Compile the projects"), 
+		@ApiResponse(code = 400, message = "Error in Request"),
+		@ApiResponse(code = 500, message = "Internal error")
+	})
 	@PostMapping("/project/compile")
 	@Override
 	public ResponseEntity<ResultData> compile(@RequestBody Compile compile) {
