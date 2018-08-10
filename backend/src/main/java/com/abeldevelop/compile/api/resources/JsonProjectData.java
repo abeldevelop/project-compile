@@ -12,28 +12,21 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-@ApiModel(description="Identified of project")
+@ApiModel(description="Identified of project to work with")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @EqualsAndHashCode
 @ToString
-public class ProjectData {
+public class JsonProjectData {
 
-	@ApiModelProperty(notes="Group of the proyect", example="com.abeldevelop.compile", required = true, position = 0)
+	@ApiModelProperty(notes="Group of the proyect, it is not obligatory to indicate the complete group", example="com.abeldevelop.", required = true, position = 0)
 	@NotNull(message = "group can not be null")
 	@NotEmpty(message = "group can not be empty")
 	private String group;
 	
-	@ApiModelProperty(notes="Name of the proyect", example="project-compile", required = true, position = 1)
-	@NotNull(message = "name can not be null")
-	@NotEmpty(message = "name can not be empty")
+	@ApiModelProperty(notes="Name of the proyect, it is not obligatory to indicate the complete name", example="project-compile", required = false, position = 1)
 	private String name;
-	
-	@ApiModelProperty(notes="Version of the proyect", example="1.0.0", required = true, position = 2)
-	@NotNull(message = "version can not be null")
-	@NotEmpty(message = "version can not be empty")
-	private String version;
 	
 }

@@ -12,7 +12,10 @@ import org.codehaus.plexus.util.StringUtils;
 import org.springframework.stereotype.Service;
 
 import com.abeldevelop.compile.api.resources.JsonData;
+import com.abeldevelop.compile.api.resources.JsonProjectData;
 import com.abeldevelop.compile.api.resources.Project;
+import com.abeldevelop.compile.api.resources.ProjectData;
+import com.abeldevelop.compile.api.resources.ResultData;
 import com.abeldevelop.compile.core.json.SaveJson;
 import com.abeldevelop.compile.core.project.analyze.AnalyzerProject;
 import com.abeldevelop.compile.core.project.read.ReadProject;
@@ -33,7 +36,8 @@ public class CreateJsonService implements JsonService {
 	private final AnalyzerProject analyzerProject;
 	
 	@Override
-	public List<String> createJson(JsonData jsonData) {
+	public ResultData createJson(JsonData jsonData) {
+		ResultData resultData = new ResultData();
 		List<String> errors = new ArrayList<>();
 		Map<String, Project> projects = new HashMap<>();
 		List<String> directories = retrieveAllDirectories(jsonData.getProjectsDirectories());
@@ -49,13 +53,18 @@ public class CreateJsonService implements JsonService {
 				}
 			}
 			if(readProject != null) {
-				readProject.read(projects, directory, jsonData.getInternalProjects());
+				List<ProjectData> projectsData = new ArrayList<>();
+				for(JsonProjectData jsonProjectData : jsonData.getInternalProjects()) {
+					projectsData.add(new ProjectData(jsonProjectData.getGroup(), jsonProjectData.getName(), null));
+				}
+				readProject.read(projects, directory, projectsData);
 			}
 		}
 		errors.addAll(analyzerProject.analyze(projects));
 		deleteProjectsNotInDisk(projects);
 		saveJson.save(projects);
-		return removeDuplicateErrors(errors);
+		resultData.setErrors(removeDuplicateErrors(errors));
+		return resultData;
 	}
 
 	private List<String> removeDuplicateErrors(List<String> errors) {

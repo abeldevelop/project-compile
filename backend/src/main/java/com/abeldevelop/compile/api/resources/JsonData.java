@@ -20,13 +20,13 @@ import lombok.ToString;
 @ToString
 public class JsonData {
 
-	@ApiModelProperty(notes="List of internal projects on disk", required = true, position = 0)
+	@ApiModelProperty(notes="List of internal projects on disk, projects that do not coincide with this group and/or name are considered external dependencies", required = true, position = 0)
 	@NotNull(message = "internalProjects can not be null")
 	@NotEmpty(message = "internalProjects can not be empty")
 	@Size(min = 1, message = "Must indicate at least one internalProject")
-	private List<ProjectData> internalProjects;
+	private List<JsonProjectData> internalProjects;
 	
-	@ApiModelProperty(notes="List of directories where java projects are located", required = true, position = 0)
+	@ApiModelProperty(notes="List of directories where java projects are located", example="[C:\\Users\\user\\workspace]", required = true, position = 0)
 	@NotNull(message = "projectsDirectories can not be null")
 	@NotEmpty(message = "projectsDirectories can not be empty")
 	@Size(min = 1, message = "Must indicate at least one directory")

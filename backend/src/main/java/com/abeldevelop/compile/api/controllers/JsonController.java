@@ -1,7 +1,5 @@
 package com.abeldevelop.compile.api.controllers;
 
-import java.util.List;
-
 import javax.validation.Valid;
 
 import org.springframework.http.HttpStatus;
@@ -11,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.abeldevelop.compile.api.resources.JsonData;
+import com.abeldevelop.compile.api.resources.ResultData;
 import com.abeldevelop.compile.api.services.json.JsonService;
 
 import io.swagger.annotations.Api;
@@ -36,11 +35,11 @@ public class JsonController implements JsonAPI {
 	})
 	@PostMapping("/json")
 	@Override
-	public ResponseEntity<List<String>> createJson(@Valid @RequestBody JsonData jsonData) {
+	public ResponseEntity<ResultData> createJson(@Valid @RequestBody JsonData jsonData) {
 		if(log.isInfoEnabled()) {
 			log.info("Request /json -> {}", jsonData);
 		}
-		List<String> errors = jsonService.createJson(jsonData);
-		return new ResponseEntity<>(errors, HttpStatus.CREATED);
+		ResultData resultData = jsonService.createJson(jsonData);
+		return new ResponseEntity<>(resultData, HttpStatus.CREATED);
 	}
 }

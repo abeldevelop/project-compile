@@ -18,6 +18,8 @@ import com.abeldevelop.compile.api.services.project.CompilerProjectService;
 import com.abeldevelop.compile.api.services.project.ProjectService;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -52,6 +54,11 @@ public class ProjectController implements ProjectAPI {
 	}
 	
 	@ApiOperation(value = "Returns all projects that match the search pattern")
+	 @ApiImplicitParams({
+		    @ApiImplicitParam(name = "group", value = "Group of the project", required = false, example="com.abeldevelop.compile", dataType = "string", paramType = "query"),
+		    @ApiImplicitParam(name = "name", value = "Name  of the project", required = false, example="project-compile", dataType = "string", paramType = "query"),
+		    @ApiImplicitParam(name = "version", value = "Version  of the project", required = false, example="1.0.0", dataType = "string", paramType = "query")
+		  })
 	@ApiResponses({ 
 		@ApiResponse(code = 200, message = "Returns the projects"), 
 		@ApiResponse(code = 400, message = "Error in Request"),

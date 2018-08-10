@@ -1,10 +1,9 @@
 package com.abeldevelop.compile.api.services.json;
 
-import java.util.List;
-
 import com.abeldevelop.compile.api.resources.JsonData;
+import com.abeldevelop.compile.api.resources.ResultData;
 
 public interface JsonService {
 
-	public List<String> createJson(JsonData jsonData);
+	public ResultData createJson(JsonData jsonData);
 }

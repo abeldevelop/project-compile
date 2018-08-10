@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,13 +21,28 @@ import lombok.ToString;
 @ToString
 public class Project {
 
+	@ApiModelProperty(notes="Directory in disk of the proyect", example="C:\\Users\\user\\workspace\\projectOne", position = 0)
 	private String directory;
-	private ProjectData data;	
+	
+	@ApiModelProperty(notes="Identified of the project", position = 1)
+	private ProjectData data;
+	
+	@ApiModelProperty(notes="Description of the project", position = 2)
 	private String description;
+	
+	@ApiModelProperty(notes="Type of packaging of the project", position = 3)
 	private String packaging;
+	
+	@ApiModelProperty(notes="Details of the parent project", position = 4)
 	private ProjectData parent;
+	
+	@ApiModelProperty(notes="List of properties of the project", position = 5)
 	private Map<String, String> properties;
+	
+	@ApiModelProperty(notes="List of internal dependencies of the parent project", position = 6)
 	private List<Project> dependencies;
+	
+	@ApiModelProperty(notes="List of external dependencies of the parent project", position = 7)
 	private List<ProjectData> externaDependencies;
 	
 	public void addProperty(String key, String value) {
