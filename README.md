@@ -4,7 +4,7 @@ Project Compile analiza los proyectos Maven que tienes en tu disco duro para cre
 
 Por **defecto** el fichero json generado con la informacion de los proyectos se guarda en el **home** del usuario, pero se puede indicar otro directorio con el siguiente argumento de entrada:
 ```
---jsonDirectory=C:\Users\abelf\Desktop\jsonDirectoryPruebas
+--jsonDirectory=C:\Users\user\Desktop\jsonDirectoryPruebas
 ```
 
 La documentación del API esta generada con **Swagger** y se puede encontrar en la siguiente URL al arrancar el programa.
