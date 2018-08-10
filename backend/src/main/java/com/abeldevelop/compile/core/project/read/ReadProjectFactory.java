@@ -1,5 +1,7 @@
 package com.abeldevelop.compile.core.project.read;
 
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 
 import lombok.AllArgsConstructor;
@@ -7,14 +9,14 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 @Component
 public class ReadProjectFactory {
-
-	//TODO => Esto debe ser una lista del tipo ReadProject
-	private final ReadMavenProject readMavenProject;
+	
+	private final List<ReadProject> readProjects;
 	
 	public ReadProject getImplementation(String directory) {
-		//TODO => Recorrer la lista ReadProject para ver cual es la implementacion
-		if(readMavenProject.isThisType(directory)) {
-			return readMavenProject;
+		for(ReadProject readProject : readProjects) {
+			if(readProject.isThisType(directory)) {
+				return readProject;
+			}
 		}
 		return null;
 	}

@@ -15,11 +15,15 @@ import org.springframework.stereotype.Component;
 import com.abeldevelop.compile.exception.ProjectCompileException;
 import com.abeldevelop.compile.util.Constants;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component
 public class CompilerMavenProject implements CompilerProject {
 
 	@Override
 	public List<String> compile(String directory, List<String> goals) {
+		log.info("GOALS: " + goals);
 		List<String> errors = new ArrayList<>();
 		InvocationRequest request = new DefaultInvocationRequest();
 		request.setPomFile(new File(directory + File.separator + Constants.POM_FILE_NAME));

@@ -61,7 +61,7 @@ public class DefaultCompilerProjectService implements CompilerProjectService {
 		List<String> errors = new ArrayList<>();
 		CompilerProject compiler = compilerProjectFactory.getImplementation(project.getDirectory());
 		if(!BooleanUtils.isTrue(compileIn.getCompileDepencies())) {
-			errors.addAll(compileProject(compiler, project.getData(), project.getDirectory(), new ArrayList<>()));
+			errors.addAll(compileProject(compiler, project.getData(), project.getDirectory(), new ArrayList<>(), compileIn));
 		}
 		else if(BooleanUtils.isTrue(compileIn.getCompileDepencies()) && BooleanUtils.isTrue(compileIn.getOnlyFirstLevel())) {
 			errors.addAll(compileOnlyFirstLevelDependecy(compiler, project, new ArrayList<>(), compileIn));
@@ -88,7 +88,7 @@ public class DefaultCompilerProjectService implements CompilerProjectService {
 				}
 			}
 		}
-		errors.addAll(compileProject(compiler, project.getData(), project.getDirectory(), compiledProjects));
+		errors.addAll(compileProject(compiler, project.getData(), project.getDirectory(), compiledProjects, compileIn));
 		return errors;
 	}
 
@@ -99,7 +99,7 @@ public class DefaultCompilerProjectService implements CompilerProjectService {
 				if(!StringUtils.isEmpty(dependency.getDirectory())) {
 					if(!excludeProject(dependency.getData(), compileIn)) {
 						CompilerProject compilerDependency = compilerProjectFactory.getImplementation(dependency.getDirectory());
-						errors.addAll(compileProject(compilerDependency, dependency.getData(), dependency.getDirectory(), compiledProjects));
+						errors.addAll(compileProject(compilerDependency, dependency.getData(), dependency.getDirectory(), compiledProjects, compileIn));
 					}
 				}
 				else {
@@ -107,11 +107,11 @@ public class DefaultCompilerProjectService implements CompilerProjectService {
 				}
 			}
 		}
-		errors.addAll(compileProject(compiler, project.getData(), project.getDirectory(), compiledProjects));
+		errors.addAll(compileProject(compiler, project.getData(), project.getDirectory(), compiledProjects, compileIn));
 		return errors;
 	}
 
-	private List<String> compileProject(CompilerProject compiler, ProjectData projectData, String directory, List<ProjectData> compiledProjects) {
+	private List<String> compileProject(CompilerProject compiler, ProjectData projectData, String directory, List<ProjectData> compiledProjects, Compile compileIn) {
 		List<String> errors = new ArrayList<>();
 		if(compiledProjects.contains(projectData)) {
 			return errors;
@@ -130,8 +130,7 @@ public class DefaultCompilerProjectService implements CompilerProjectService {
 			errors.add(Utils.generateMessageErrorProjectNotInDisk(projectData));
 			return errors;
 		}
-		//return compiler.compile(directory, compileIn.getGoals());
-		return errors;
+		return compiler.compile(directory, compileIn.getGoals());
 	}
 	
 	private boolean excludeProject(ProjectData projectData, Compile compileIn) {
